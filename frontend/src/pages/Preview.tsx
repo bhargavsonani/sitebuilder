@@ -76,10 +76,13 @@ const Preview: React.FC = () => {
           throw new Error("Project not found");
         }
 
+        // const version = project.versions?.find(
+        //   (v: Version) =>
+        //     v._id === versionId || v.id === versionId
+        // );
+
         const version = project.versions?.find(
-          (v: Version) =>
-            v._id === versionId || v.id === versionId
-        );
+  (v: Version) => v.id === versionId || v._id === versionId);
 
         if (!version) {
           throw new Error("Version not found");
