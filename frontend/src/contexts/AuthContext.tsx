@@ -428,244 +428,6 @@
 // // };
 
 
-// import React, {
-//   createContext,
-//   useContext,
-//   useEffect,
-//   useState,
-// } from "react";
-// import api from "@/configs/axios";
-// import { toast } from "sonner";
-
-// /* ===============================
-//    Types
-// ================================ */
-
-// export interface User {
-//   id: string;
-//   email: string;
-//   name: string;
-//   emailVerified: boolean;
-//   credits: number;
-//   totalCreation: number;
-// }
-
-// interface AuthContextType {
-//   user: User | null;
-//   loading: boolean;
-//   signIn: (email: string, password: string) => Promise<void>;
-//   signUp: (email: string, name: string, password: string) => Promise<void>;
-//   signOut: () => Promise<void>;
-//   refreshUser: () => Promise<boolean>;
-//   updateProfile: (name: string) => Promise<void>;
-//   changePassword: (
-//     currentPassword: string,
-//     newPassword: string
-//   ) => Promise<void>;
-//   deleteAccount: (password: string) => Promise<void>;
-// }
-
-// /* ===============================
-//    Context
-// ================================ */
-
-// const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// export const useAuth = () => {
-//   const ctx = useContext(AuthContext);
-//   if (!ctx) {
-//     throw new Error("useAuth must be used within AuthProvider");
-//   }
-//   return ctx;
-// };
-
-// /* ===============================
-//    Provider
-// ================================ */
-
-// export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-//   children,
-// }) => {
-//   const [user, setUser] = useState<User | null>(null);
-//   const [loading, setLoading] = useState(true);
-
-//   /* ===============================
-//      Refresh user
-//   ================================ */
-//   const refreshUser = async (): Promise<boolean> => {
-//     try {
-//       const res = await api.get("/api/auth/me");
-
-//       if (res.data?.success && res.data?.data?.user) {
-//         setUser(res.data.data.user);
-//         return true;
-//       }
-
-//       setUser(null);
-//       return false;
-//     } catch (error: any) {
-//       const status = error?.response?.status;
-//       if (![401, 403].includes(status)) {
-//         console.error("refreshUser error:", error);
-//       }
-//       setUser(null);
-//       return false;
-//     }
-//   };
-
-//   useEffect(() => {
-//     refreshUser().finally(() => setLoading(false));
-//   }, []);
-
-//   /* ===============================
-//      Sign In
-//   ================================ */
-//   const signIn = async (email: string, password: string) => {
-//     try {
-//       const res = await api.post("/api/auth/signin", {
-//         email,
-//         password,
-//       });
-
-//       if (res.data?.success && res.data?.data?.user) {
-//         setUser(res.data.data.user);
-//         toast.success("Signed in successfully");
-//         return;
-//       }
-
-//       throw new Error(res.data?.message || "Sign in failed");
-//     } catch (error: any) {
-//       toast.error(error.response?.data?.message || "Failed to sign in");
-//       throw error;
-//     }
-//   };
-
-//   /* ===============================
-//      Sign Up
-//   ================================ */
-//   const signUp = async (
-//     email: string,
-//     name: string,
-//     password: string
-//   ) => {
-//     try {
-//       const res = await api.post("/api/auth/signup", {
-//         email,
-//         name,
-//         password,
-//       });
-
-//       if (res.data?.success && res.data?.data?.user) {
-//         setUser(res.data.data.user);
-//         toast.success("Account created successfully");
-//         return;
-//       }
-
-//       throw new Error(res.data?.message || "Sign up failed");
-//     } catch (error: any) {
-//       toast.error(error.response?.data?.message || "Failed to create account");
-//       throw error;
-//     }
-//   };
-
-//   /* ===============================
-//      Update profile
-//   ================================ */
-//   const updateProfile = async (name: string) => {
-//     try {
-//       const res = await api.put("/api/auth/me", { name });
-
-//       if (res.data?.success && res.data?.data?.user) {
-//         setUser(res.data.data.user);
-//         toast.success("Profile updated successfully");
-//         return;
-//       }
-
-//       throw new Error(res.data?.message || "Update failed");
-//     } catch (error: any) {
-//       toast.error(error.response?.data?.message || "Failed to update profile");
-//       throw error;
-//     }
-//   };
-
-//   /* ===============================
-//      Change password
-//   ================================ */
-//   const changePassword = async (
-//     currentPassword: string,
-//     newPassword: string
-//   ) => {
-//     try {
-//       await api.post("/api/auth/change-password", {
-//         currentPassword,
-//         newPassword,
-//       });
-
-//       toast.success("Password changed. Please sign in again.");
-//       await signOut();
-//     } catch (error: any) {
-//       toast.error(error.response?.data?.message || "Password change failed");
-//       throw error;
-//     }
-//   };
-
-//   /* ===============================
-//      Delete account
-//   ================================ */
-//   const deleteAccount = async (password: string) => {
-//     try {
-//       const res = await api.delete("/api/auth/delete-account", {
-//         data: { password },
-//       });
-
-//       if (res.data?.success) {
-//         setUser(null);
-//         toast.success("Account deleted permanently");
-//         return;
-//       }
-
-//       throw new Error(res.data?.message || "Delete failed");
-//     } catch (error: any) {
-//       toast.error(error.response?.data?.message || "Failed to delete account");
-//       throw error;
-//     }
-//   };
-
-//   /* ===============================
-//      Sign Out
-//   ================================ */
-//   const signOut = async () => {
-//     try {
-//       await api.post("/api/auth/signout");
-//       setUser(null);
-//       toast.success("Signed out successfully");
-//     } catch (error: any) {
-//       toast.error(error.response?.data?.message || "Sign out failed");
-//       throw error;
-//     }
-//   };
-
-//   return (
-//     <AuthContext.Provider
-//       value={{
-//         user,
-//         loading,
-//         signIn,
-//         signUp,
-//         signOut,
-//         refreshUser,
-//         updateProfile,
-//         changePassword,
-//         deleteAccount,
-//       }}
-//     >
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-
-
 import React, {
   createContext,
   useContext,
@@ -742,6 +504,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(null);
       return false;
     } catch (error: any) {
+      const status = error?.response?.status;
+      if (![401, 403].includes(status)) {
+        console.error("refreshUser error:", error);
+      }
       setUser(null);
       return false;
     }
@@ -755,14 +521,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
      Sign In
   ================================ */
   const signIn = async (email: string, password: string) => {
-    const res = await api.post("/api/auth/signin", { email, password });
+    try {
+      const res = await api.post("/api/auth/signin", {
+        email,
+        password,
+      });
 
-    if (!res.data?.success) {
+      if (res.data?.success && res.data?.data?.user) {
+        setUser(res.data.data.user);
+        toast.success("Signed in successfully");
+        return;
+      }
+
       throw new Error(res.data?.message || "Sign in failed");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to sign in");
+      throw error;
     }
-
-    setUser(res.data.data.user);
-    toast.success("Signed in successfully");
   };
 
   /* ===============================
@@ -773,32 +548,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     name: string,
     password: string
   ) => {
-    const res = await api.post("/api/auth/signup", {
-      email,
-      name,
-      password,
-    });
+    try {
+      const res = await api.post("/api/auth/signup", {
+        email,
+        name,
+        password,
+      });
 
-    if (!res.data?.success) {
+      if (res.data?.success && res.data?.data?.user) {
+        setUser(res.data.data.user);
+        toast.success("Account created successfully");
+        return;
+      }
+
       throw new Error(res.data?.message || "Sign up failed");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to create account");
+      throw error;
     }
-
-    setUser(res.data.data.user);
-    toast.success("Account created successfully");
   };
 
   /* ===============================
      Update profile
   ================================ */
   const updateProfile = async (name: string) => {
-    const res = await api.put("/api/auth/me", { name });
+    try {
+      const res = await api.put("/api/auth/me", { name });
 
-    if (!res.data?.success) {
+      if (res.data?.success && res.data?.data?.user) {
+        setUser(res.data.data.user);
+        toast.success("Profile updated successfully");
+        return;
+      }
+
       throw new Error(res.data?.message || "Update failed");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update profile");
+      throw error;
     }
-
-    setUser(res.data.data.user);
-    toast.success("Profile updated successfully");
   };
 
   /* ===============================
@@ -808,42 +595,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     currentPassword: string,
     newPassword: string
   ) => {
-    const res = await api.post("/api/auth/change-password", {
-      currentPassword,
-      newPassword,
-    });
+    try {
+      await api.post("/api/auth/change-password", {
+        currentPassword,
+        newPassword,
+      });
 
-    if (!res.data?.success) {
-      throw new Error(res.data?.message || "Password change failed");
+      toast.success("Password changed. Please sign in again.");
+      await signOut();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Password change failed");
+      throw error;
     }
-
-    toast.success("Password changed. Please sign in again.");
-    await signOut();
   };
 
   /* ===============================
      Delete account
   ================================ */
   const deleteAccount = async (password: string) => {
-    const res = await api.delete("/api/auth/delete-account", {
-      data: { password },
-    });
+    try {
+      const res = await api.delete("/api/auth/delete-account", {
+        data: { password },
+      });
 
-    if (!res.data?.success) {
+      if (res.data?.success) {
+        setUser(null);
+        toast.success("Account deleted permanently");
+        return;
+      }
+
       throw new Error(res.data?.message || "Delete failed");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to delete account");
+      throw error;
     }
-
-    setUser(null);
-    toast.success("Account deleted permanently");
   };
 
   /* ===============================
      Sign Out
   ================================ */
   const signOut = async () => {
-    await api.post("/api/auth/signout");
-    setUser(null);
-    toast.success("Signed out successfully");
+    try {
+      await api.post("/api/auth/signout");
+      setUser(null);
+      toast.success("Signed out successfully");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Sign out failed");
+      throw error;
+    }
   };
 
   return (
@@ -864,3 +663,5 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     </AuthContext.Provider>
   );
 };
+
+
