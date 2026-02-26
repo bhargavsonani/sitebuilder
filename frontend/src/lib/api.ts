@@ -181,7 +181,7 @@
 import axios from "axios";
 
 const API_BASE_URL =
-  import.meta.env.VITE_BASEURL ||
+  "https://sitebuilder-5dsm.vercel.app" ||
   "http://localhost:3000";
 
 /* ============================
