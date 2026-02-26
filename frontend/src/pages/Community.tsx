@@ -271,6 +271,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "@/configs/axios";
 import { toast } from "sonner";
 import Footer from "../components/Footer";
+import axios from "axios";
 
 const Community: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -284,7 +285,7 @@ const Community: React.FC = () => {
     try {
       setLoading(true);
 
-      const { data } = await api.get("/api/project/published");
+      const { data } = await axios.get("https://sitebuilder-5dsm.vercel.app/api/project/published");
 
       const fetchedProjects = (data?.data?.projects ?? []).map(
         (p: any) => ({
