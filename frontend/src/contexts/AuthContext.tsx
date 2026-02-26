@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error: any) {
       // Silently fail if user is not authenticated (401/403) - this is expected
       // Also silently fail for network errors (backend not running)
-      const status = (error as any)?.status;
+      const status = (error as any)?.status ?? (error as any)?.response?.status;
       if (status !== 401 && status !== 403 && status !== 0) {
         console.error("Error refreshing user:", error);
       }
